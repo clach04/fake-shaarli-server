@@ -27,6 +27,10 @@ import sys
 from wsgiref.simple_server import make_server
 
 
+version_tuple = (0, 0, 1)
+version = __version__ = '%d.%d.%d' % version_tuple
+__author__ = 'clach04'
+
 def force_bool(in_bool):
     """Force string value into a Python boolean value
     Everything is True with the exception of; false, off, and 0"""
@@ -142,7 +146,7 @@ def shaarli_rest_api_wsgi(environ, start_response):
               "global_counter": 0,
               "private_counter": 0,
               "settings": {
-                "title": "Fake Shaarli REST API",  # TODO version number?
+                "title": "Fake Shaarli v%s REST API v1" % (__version__,),
                 "header_link": 'http://' + environ['HTTP_HOST'],  # FIXME
                 "timezone": "Europe/Paris",
                 "enabled_plugins": [
