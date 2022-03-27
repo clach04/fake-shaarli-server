@@ -8,6 +8,17 @@ Also (partially) works with [python-shaarli-client](https://github.com/shaarli/p
 This doesn't actual do anything and is essentially non-functional. It completely ignores security (JWT) tokens (it does not handle the deprecated username/password authentication option). Basicallty, don't use it ;) Use https://github.com/shaarli/Shaarli instead :)
 
 
+## Running
+
+### shaarli2linkding_proxy.py
+
+Right now this only supports creating new entries (or overwritting existing, but not looking up current tags)
+
+    export LINKDING_TOKEN=secret  # REST API key/token from http://LinkDingServer/settings/integrations
+    export LINKDING_URI=http://LinkDingServer  # etc.
+    python shaarli2linkding_proxy.py
+
+
 ## Testing
 
 Testing with https://github.com/shaarli/python-shaarli-client, note examples
