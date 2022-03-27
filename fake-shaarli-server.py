@@ -207,6 +207,25 @@ def shaarli_rest_api_wsgi(environ, start_response):
             '''
             # Empty list
             bookmark_list = []
+            """
+            bookmark_list = [
+                        {
+                            "id": 345,
+                            "url": "http://foo.bar",
+                            "shorturl": "1H3Srg",
+                            "title": "Link title",
+                            "description": "Hello, world!",
+                            "tags": [
+                              "foo",
+                              "bar"
+                            ],
+                            "private": False,
+                            "created": "2000-01-01T00:00:00+00:00",
+                            "updated": "2000-01-01T00:00:00+00:00"
+                        }
+
+            ]
+            """
             fake_info_str = json.dumps(bookmark_list)
         elif path_info and path_info.startswith('/api/v1/tags'):
             # http://shaarli.github.io/api-documentation/#links-tags-collection-get
