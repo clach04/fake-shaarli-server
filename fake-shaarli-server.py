@@ -118,7 +118,7 @@ def determine_local_ipaddr():
     return local_address
 
 
-def simple_app(environ, start_response):
+def shaarli_rest_api_wsgi(environ, start_response):
     """Simple WSGI application that implements bare minimum of
     http://shaarli.github.io/api-documentation/ so that
     https://github.com/dimtion/Shaarlier and
@@ -310,7 +310,7 @@ def main(argv=None):
     print('Python %s on %s' % (sys.version, sys.platform))
     server_port = int(os.environ.get('PORT', DEFAULT_SERVER_PORT))
 
-    httpd = make_server('', server_port, simple_app)
+    httpd = make_server('', server_port, shaarli_rest_api_wsgi)
     print("Serving on port %d..." % server_port)
     print("ALWAYS_RETURN_404 = %r" % ALWAYS_RETURN_404)
     local_ip = determine_local_ipaddr()
