@@ -125,7 +125,7 @@ def shaarli_rest_api_wsgi(environ, start_response):
     https://github.com/shaarli/python-shaarli-client completes
     """
     status = '200 OK'
-    headers = [('Content-type', 'text/plain')]
+    headers = [('Content-type', 'application/json')]
     result= []
 
     path_info = environ['PATH_INFO']
