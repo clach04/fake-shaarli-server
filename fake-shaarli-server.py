@@ -122,6 +122,42 @@ def determine_local_ipaddr():
     return local_address
 
 
+
+# dumb global dispatcher
+# TODO exception handling
+class DefaultDispatcher:
+    def search_links(*args, **kwargs):
+        """# http://shaarli.github.io/api-documentation/#links-links-collection-get
+        Be prepared for offset,limit,searchterm,searchtags,visibility
+        returns a list, empty or sample single entry result:
+
+            [
+                        {
+                            "id": 345,
+                            "url": "http://foo.bar",
+                            "shorturl": "1H3Srg",
+                            "title": "Link title",
+                            "description": "Hello, world!",
+                            "tags": [
+                              "foo",
+                              "bar"
+                            ],
+                            "private": False,
+                            "created": "2000-01-01T00:00:00+00:00",
+                            "updated": "2000-01-01T00:00:00+00:00"
+                        }
+
+            ]
+        """
+        print('search_links(): ' + repr(kwargs))
+        return []
+
+    def add_link():
+        pass
+
+dispatcher = DefaultDispatcher()
+
+
 def shaarli_rest_api_wsgi(environ, start_response):
     """Simple WSGI application that implements bare minimum of
     http://shaarli.github.io/api-documentation/ so that
@@ -205,27 +241,7 @@ def shaarli_rest_api_wsgi(environ, start_response):
 ]
 """
             '''
-            # Empty list
-            bookmark_list = []
-            """
-            bookmark_list = [
-                        {
-                            "id": 345,
-                            "url": "http://foo.bar",
-                            "shorturl": "1H3Srg",
-                            "title": "Link title",
-                            "description": "Hello, world!",
-                            "tags": [
-                              "foo",
-                              "bar"
-                            ],
-                            "private": False,
-                            "created": "2000-01-01T00:00:00+00:00",
-                            "updated": "2000-01-01T00:00:00+00:00"
-                        }
-
-            ]
-            """
+            bookmark_list = dispatcher.search_links(**get_dict)
             fake_info_str = json.dumps(bookmark_list)
         elif path_info and path_info.startswith('/api/v1/tags'):
             # http://shaarli.github.io/api-documentation/#links-tags-collection-get
