@@ -127,8 +127,9 @@ def determine_local_ipaddr():
 # TODO exception handling
 class DefaultDispatcher:
     def search_links(self, *args, **kwargs):
-        """# http://shaarli.github.io/api-documentation/#links-links-collection-get
-        Be prepared for offset,limit,searchterm,searchtags,visibility
+        """Search for URL(s)
+        http://shaarli.github.io/api-documentation/#links-links-collection-get
+        Be prepared for; offset, limit, searchterm, searchtags, visibility
         returns a list, empty or sample single entry result:
 
             [
@@ -152,8 +153,33 @@ class DefaultDispatcher:
         print('search_links(): ' + repr(kwargs))
         return []
 
-    def add_link():
-        pass
+    def add_link(self, *args, **kwargs):
+        """Add a single URL bookmark
+        http://shaarli.github.io/api-documentation/#links-links-collection-post
+        Be prepared for;
+            "url": "https://www.google.com/",
+            "title": "Some Title",
+            "description": "Some Description",
+            "tags": ["foo", "bar"],
+            "private": False
+
+        Return a dictionary, sample:
+
+            {
+                "id": 1,  # No good default
+                "shorturl": "111111",  # No good default
+                "url": "",
+                "title": "",
+                "description": "",
+                "tags": ["foo", "bar"],
+                "private": False,
+                "created": "2000-01-01T00:00:00+00:00",
+                "updated": "2000-01-01T00:00:00+00:00"
+            }
+        Caller can deal with missing returned entries and will default if omitted
+        """
+        print('add_link(): ' + repr(kwargs))
+        return kwargs  # assume it's valid
 
 dispatcher = DefaultDispatcher()
 
@@ -332,7 +358,8 @@ def shaarli_rest_api_wsgi(environ, start_response):
               "created": "2000-01-01T00:00:00+00:00",
               "updated": "2000-01-01T00:00:00+00:00"
             }
-            default_bookmark_dict.update(link_payload_dict)
+            result_bookmark = dispatcher.add_link(**link_payload_dict)
+            default_bookmark_dict.update(result_bookmark)
             fake_info_str = json.dumps(default_bookmark_dict)
 
             # Sample text result
