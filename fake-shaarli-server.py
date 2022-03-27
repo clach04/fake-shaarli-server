@@ -153,7 +153,6 @@ def shaarli_rest_api_wsgi(environ, start_response):
   }
 }
 """
-            result.append(to_bytes(fake_info_str))
         elif path_info and path_info.startswith('/api/v1/links'):
             # assume GET
             # http://shaarli.github.io/api-documentation/#links-links-collection-get
@@ -182,11 +181,12 @@ def shaarli_rest_api_wsgi(environ, start_response):
   }
 ]
 """
+            '''
             # Empty list
             fake_info_str = """[
 ]
 """
-            result.append(to_bytes(fake_info_str))
+            '''
         elif path_info and path_info.startswith('/api/v1/tags'):
             # http://shaarli.github.io/api-documentation/#links-tags-collection-get
             fake_info_str = """[
@@ -196,7 +196,6 @@ def shaarli_rest_api_wsgi(environ, start_response):
   }
 ]
 """
-            result.append(to_bytes(fake_info_str))
         else:
             # unsupported GET
             print('Unsupported GET path_info %r' % (path_info,))
@@ -208,6 +207,7 @@ def shaarli_rest_api_wsgi(environ, start_response):
             if ALWAYS_RETURN_404:
                 # Disable this to send 200 and empty body
                 return not_found(environ, start_response)
+            fake_info_str = ''
     else:
         # Assume PUT or POST
 
@@ -241,7 +241,6 @@ def shaarli_rest_api_wsgi(environ, start_response):
   "updated": "2015-05-06T14:30:00+03:00"
 }
 """
-            result.append(to_bytes(fake_info_str))
         elif path_info and path_info.startswith('/api/v1/links'):
             # http://shaarli.github.io/api-documentation/#links-links-collection-get
             # http://shaarli.github.io/api-documentation/#links-links-collection-post
@@ -300,7 +299,8 @@ def shaarli_rest_api_wsgi(environ, start_response):
             if ALWAYS_RETURN_404:
                 # Disable this to send 200 and empty body
                 return not_found(environ, start_response)
-            result.append(to_bytes(''))
+            fake_info_str = ''
+    result.append(to_bytes(fake_info_str))
 
     start_response(status, headers)
     return result
