@@ -181,8 +181,8 @@ def shaarli_rest_api_wsgi(environ, start_response):
             # Shaarlier will then take that result and update the on screen info, e.g. description, tags and title
             # when return empty list, looks like it gets details from site? or was passed in via android share intent?
 
-            # Single entry
-            fake_info_str = """[
+            # Sample single entry string
+            """[
   {
     "id": 345,
     "url": "http://foo.bar",
@@ -205,6 +205,9 @@ def shaarli_rest_api_wsgi(environ, start_response):
 ]
 """
             '''
+            # Empty list
+            bookmark_list = []
+            fake_info_str = json.dumps(bookmark_list)
         elif path_info and path_info.startswith('/api/v1/tags'):
             # http://shaarli.github.io/api-documentation/#links-tags-collection-get
             # /tags{?offset,limit,visibility}
