@@ -212,6 +212,12 @@ def shaarli_rest_api_wsgi(environ, start_response):
 
     path_info = environ['PATH_INFO']
     request_method = environ['REQUEST_METHOD']
+    # from https://wsgi.readthedocs.io/en/latest/definitions.html
+    print('debug ' + environ['SERVER_PROTOCOL'])
+    print('debug ' + environ['HTTP_HOST'])
+    print('debug ' + environ['SERVER_NAME'])
+    print('debug ' + environ['SERVER_PORT'])
+    print('debug ' + environ['SCRIPT_NAME'])
 
     if 'GET' == request_method:
         # Returns a dictionary in which the values are lists
@@ -220,12 +226,14 @@ def shaarli_rest_api_wsgi(environ, start_response):
         if path_info and path_info.startswith('/api/v1/info'):
             # http://shaarli.github.io/api-documentation/#links-instance-information-get
             # python -m shaarli_client.main  get-info
+            server = environ['HTTP_HOST'] or (environ['SERVER_NAME'] + ':' + environ['SERVER_PORT'])
+            #print(server)
             default_info_dict = {
               "global_counter": 0,
               "private_counter": 0,
               "settings": {
                 "title": "Fake Shaarli v%s REST API v1" % (__version__,),
-                "header_link": 'http://' + environ['HTTP_HOST'],  # FIXME
+                "header_link": environ['wsgi.url_scheme'] + '://' + server + '/' + environ['SCRIPT_NAME'],  # see https://peps.python.org/pep-0333/#url-reconstruction
                 "timezone": "Europe/Paris",
                 "enabled_plugins": [
                 ],
