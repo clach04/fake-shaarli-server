@@ -91,7 +91,7 @@ class LinkDingDispatcher(fake_shaarli_server.DefaultDispatcher):
         # TODO ifnot 201 raise an error so fake server can also raise a reasonable error and report to Shaarli client
         result_bookmark = result.json() # {"id":6,"url":"https://example.com","title":"Example title","description":"Example description","website_title":"Example Domain","website_description":null,"tag_names":["tag1","tag2"],"date_added":"2022-03-27T22:44:34.185359Z","date_modified":"2022-03-27T22:44:34.185398Z"}
 
-        kwargs["id"] =  bookmark_dict["id"]
+        kwargs["id"] = result_bookmark["id"]
         kwargs["private"] =  False  # no mapping, so default
         # TODO reformat ISO string
         """
