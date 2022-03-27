@@ -154,14 +154,14 @@ def shaarli_rest_api_wsgi(environ, start_response):
 }
 """
         elif path_info and path_info.startswith('/api/v1/links'):
-            # assume GET
             # http://shaarli.github.io/api-documentation/#links-links-collection-get
+            # /links{?offset,limit,searchterm,searchtags,visibility}
+            # get_dict == {'searchterm': ['https://www.immae.eu/'], 'limit': ['1'], 'offset': ['0']}
+            #
             # python -m shaarli_client.main  get-links
             # python -m shaarli_client.main  get-links --searchterm hello
-            # get_dict == {'searchterm': ['https://www.immae.eu/'], 'limit': ['1'], 'offset': ['0']}
-            # Sahaarlier will then take that result and update the on screen info, e.g. description, tags and title
-            # presumbly uses the other fields and caches..
-            # when return empty list, looks like it gets details from site? or was passed in via share?
+            # Shaarlier will then take that result and update the on screen info, e.g. description, tags and title
+            # when return empty list, looks like it gets details from site? or was passed in via android share intent?
 
             # Single entry
             fake_info_str = """[
@@ -189,6 +189,7 @@ def shaarli_rest_api_wsgi(environ, start_response):
             '''
         elif path_info and path_info.startswith('/api/v1/tags'):
             # http://shaarli.github.io/api-documentation/#links-tags-collection-get
+            # /tags{?offset,limit,visibility}
             fake_info_str = """[
   {
     "name": "Tutorial",
