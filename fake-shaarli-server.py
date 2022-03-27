@@ -126,7 +126,7 @@ def determine_local_ipaddr():
 # dumb global dispatcher
 # TODO exception handling
 class DefaultDispatcher:
-    def search_links(*args, **kwargs):
+    def search_links(self, *args, **kwargs):
         """# http://shaarli.github.io/api-documentation/#links-links-collection-get
         Be prepared for offset,limit,searchterm,searchtags,visibility
         returns a list, empty or sample single entry result:
