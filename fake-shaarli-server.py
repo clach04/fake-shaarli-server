@@ -256,7 +256,6 @@ def shaarli_rest_api_wsgi(environ, start_response):
             # python -m shaarli_client.main  post-link --title title --url http://something.com
             # get_dict == EMPTY - as expecting json payload
             # request_body = '{"url":"https:\\/\\/www.immae.eu\\/","title":"Immae","description":"","tags":[""],"private":false}'
-            print('links POST with payload' + repr(link_payload_dict))
             fake_info_str = """{
       "id": 345,
       "url": "http://foo.bar",
