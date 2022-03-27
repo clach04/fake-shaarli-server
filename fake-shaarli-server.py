@@ -153,6 +153,22 @@ class DefaultDispatcher:
         print('search_links(): ' + repr(kwargs))
         return []
 
+    def search_tags(self, *args, **kwargs):
+        """Search for tags
+        http://shaarli.github.io/api-documentation/#links-tags-collection-get
+        Be prepared for; offset, limit, visibility
+        returns a list, empty or sample single entry result:
+
+            [
+              {
+                "name": "Tutorial",
+                "occurences": 47
+              }
+            ]
+        """
+        print('search_tags(): ' + repr(kwargs))
+        return []
+
     def add_link(self, *args, **kwargs):
         """Add a single URL bookmark
         http://shaarli.github.io/api-documentation/#links-links-collection-post
@@ -245,40 +261,42 @@ def shaarli_rest_api_wsgi(environ, start_response):
 
             # Sample single entry string
             """[
-  {
-    "id": 345,
-    "url": "http://foo.bar",
-    "shorturl": "1H3Srg",
-    "title": "Link title",
-    "description": "Hello, world!",
-    "tags": [
-      "foo",
-      "bar"
-    ],
-    "private": false,
-    "created": "2015-05-05T12:30:00+03:00",
-    "updated": "2015-05-06T14:30:00+03:00"
-  }
-]
-"""
+                  {
+                    "id": 345,
+                    "url": "http://foo.bar",
+                    "shorturl": "1H3Srg",
+                    "title": "Link title",
+                    "description": "Hello, world!",
+                    "tags": [
+                      "foo",
+                      "bar"
+                    ],
+                    "private": false,
+                    "created": "2015-05-05T12:30:00+03:00",
+                    "updated": "2015-05-06T14:30:00+03:00"
+                  }
+                ]
+            """
             '''
             # Empty list
-            fake_info_str = """[
-]
-"""
+            fake_info_str = "[]"
             '''
             bookmark_list = dispatcher.search_links(**get_dict)
             fake_info_str = json.dumps(bookmark_list)
         elif path_info and path_info.startswith('/api/v1/tags'):
             # http://shaarli.github.io/api-documentation/#links-tags-collection-get
             # /tags{?offset,limit,visibility}
-            fake_info_str = """[
-  {
-    "name": "Tutorial",
-    "occurences": 47
-  }
-]
-"""
+
+            # sample string
+            """[
+                  {
+                    "name": "Tutorial",
+                    "occurences": 47
+                  }
+                ]
+            """
+            tag_list = dispatcher.search_tags(**get_dict)
+            fake_info_str = json.dumps(tag_list)
         else:
             # unsupported GET
             print('Unsupported GET path_info %r' % (path_info,))
