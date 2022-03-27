@@ -138,7 +138,21 @@ def shaarli_rest_api_wsgi(environ, start_response):
         if path_info and path_info.startswith('/api/v1/info'):
             # http://shaarli.github.io/api-documentation/#links-instance-information-get
             # python -m shaarli_client.main  get-info
-            fake_info_str = """{
+            default_info_dict = {
+              "global_counter": 0,
+              "private_counter": 0,
+              "settings": {
+                "title": "Fake Shaarli REST API",  # TODO version number?
+                "header_link": 'http://' + environ['HTTP_HOST'],  # FIXME
+                "timezone": "Europe/Paris",
+                "enabled_plugins": [
+                ],
+                "default_private_links": True
+              }
+            }
+            fake_info_str = json.dumps(default_info_dict)
+            # string sample
+            """{
   "global_counter": 654,
   "private_counter": 123,
   "settings": {
