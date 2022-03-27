@@ -254,9 +254,33 @@ def shaarli_rest_api_wsgi(environ, start_response):
             # assume POST
             # http://shaarli.github.io/api-documentation/#links-links-collection-post
             # python -m shaarli_client.main  post-link --title title --url http://something.com
+            # python -m shaarli_client.main  post-link --title title --url http://something.com --description "cool stuff"
             # get_dict == EMPTY - as expecting json payload
             # request_body = '{"url":"https:\\/\\/www.immae.eu\\/","title":"Immae","description":"","tags":[""],"private":false}'
-            fake_info_str = """{
+
+            # handle NULL (missing) tags (seen with python-shaarli-client) and an empty string tags (seen with Shaarlier)
+            if link_payload_dict['tags']:
+                processed_tags = [x for x in link_payload_dict['tags'] if x]
+            else:
+                processed_tags = []
+            link_payload_dict['tags'] = processed_tags
+
+            default_bookmark_dict = {
+              "id": 1,  # No good default
+              "shorturl": "111111",  # No good default
+              "url": "",
+              "title": "",
+              "description": "",
+              "tags": [],
+              "private": False,
+              "created": "2000-01-01T00:00:00+00:00",
+              "updated": "2000-01-01T00:00:00+00:00"
+            }
+            default_bookmark_dict.update(link_payload_dict)
+            fake_info_str = json.dumps(default_bookmark_dict)
+
+            # Sample text result
+            """{
       "id": 345,
       "url": "http://foo.bar",
       "shorturl": "1H3Srg",
