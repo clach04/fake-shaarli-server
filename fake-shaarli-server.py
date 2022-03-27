@@ -129,29 +129,16 @@ def simple_app(environ, start_response):
     result= []
 
     path_info = environ['PATH_INFO']
+    request_method = environ['REQUEST_METHOD']
 
-    print('REQUEST_METHOD %r' % environ['REQUEST_METHOD'])
-    # Returns a dictionary in which the values are lists
-    get_dict = cgi.parse_qs(environ['QUERY_STRING'])  # FIXME not needed here, defer to later when GET is needed (useless OP when POST/PUT used)
+    if 'GET' == request_method:
+        # Returns a dictionary in which the values are lists
+        get_dict = cgi.parse_qs(environ['QUERY_STRING'])  # FIXME not needed here, defer to later when GET is needed (useless OP when POST/PUT used)
 
-    # POST values
-    # the environment variable CONTENT_LENGTH may be empty or missing
-    try:
-        request_body_size = int(environ.get('CONTENT_LENGTH', 0))
-    except (ValueError):
-        request_body_size = 0
-    # Read POST body
-    request_body = environ['wsgi.input'].read(request_body_size)
-
-    print('path_info %r' % (path_info,))
-    print(repr(get_dict))
-    print(repr(request_body))
-    print(repr(environ['QUERY_STRING']))
-
-    if path_info and path_info.startswith('/api/v1/info'):
-        # http://shaarli.github.io/api-documentation/#links-instance-information-get
-        # python -m shaarli_client.main  get-info
-        fake_info_str = """{
+        if path_info and path_info.startswith('/api/v1/info'):
+            # http://shaarli.github.io/api-documentation/#links-instance-information-get
+            # python -m shaarli_client.main  get-info
+            fake_info_str = """{
   "global_counter": 654,
   "private_counter": 123,
   "settings": {
@@ -166,63 +153,8 @@ def simple_app(environ, start_response):
   }
 }
 """
-        result.append(to_bytes(fake_info_str))
-    elif path_info and path_info.startswith('/api/v1/links/'):
-        #  '/api/v1/links/345'
-        # python -m shaarli_client.main  put-link --title title --url http://something.com 345
-        # update exsting entry, path is the "id"
-        # assume PUT
-        link_payload_dict = json.loads(request_body)
-        print('links PUT with payload' + repr(link_payload_dict))
-        fake_info_str = """{
-  "id": 345,
-  "url": "http://foo.bar",
-  "shorturl": "1H3Srg",
-  "title": "Link title",
-  "description": "Hello, world!",
-  "tags": [
-    "foo",
-    "bar"
-  ],
-  "private": false,
-  "created": "2015-05-05T12:30:00+03:00",
-  "updated": "2015-05-06T14:30:00+03:00"
-}
-"""
-        # return status 200
-    elif path_info and path_info.startswith('/api/v1/links'):
-        # http://shaarli.github.io/api-documentation/#links-links-collection-get
-        # http://shaarli.github.io/api-documentation/#links-links-collection-post
-        # TODO both /sw.js (used by python-shaarli-client) and '/jw' (by shaarlier android share) both request 'text/plain'
-        # TODO '/api/v1/tags' used by shaarlier android share
-        # TODO "GET /api/v1/links?offset=0&limit=1&searchterm=https%3A%2F%2Fwww.immae.eu%2F HTTP/1.1" used by shaarlier android share - looking for dupes
-        # 404 does not elict an error response from shaarlier android share
-        # TODO both post-link put-link ?
-        if request_body:
-            # assume POST
-            # http://shaarli.github.io/api-documentation/#links-links-collection-post
-            # python -m shaarli_client.main  post-link --title title --url http://something.com
-            # get_dict == EMPTY - as expecting json payload
-            # request_body = '{"url":"https:\\/\\/www.immae.eu\\/","title":"Immae","description":"","tags":[""],"private":false}'
-            link_payload_dict = json.loads(request_body)
-            print('links POST with payload' + repr(link_payload_dict))
-            fake_info_str = """{
-  "id": 345,
-  "url": "http://foo.bar",
-  "shorturl": "1H3Srg",
-  "title": "Link title",
-  "description": "Hello, world!",
-  "tags": [
-    "foo",
-    "bar"
-  ],
-  "private": false,
-  "created": "2015-05-05T12:30:00+03:00",
-  "updated": "2015-05-06T14:30:00+03:00"
-}
-"""
-            status = '201 OK'
-        else:
+            result.append(to_bytes(fake_info_str))
+        elif path_info and path_info.startswith('/api/v1/links'):
             # assume GET
             # http://shaarli.github.io/api-documentation/#links-links-collection-get
             # python -m shaarli_client.main  get-links
@@ -254,45 +186,121 @@ def simple_app(environ, start_response):
             fake_info_str = """[
 ]
 """
-        result.append(to_bytes(fake_info_str))
-    elif path_info and path_info.startswith('/api/v1/tags'):
-        # http://shaarli.github.io/api-documentation/#links-tags-collection-get
-        fake_info_str = """[
+            result.append(to_bytes(fake_info_str))
+        elif path_info and path_info.startswith('/api/v1/tags'):
+            # http://shaarli.github.io/api-documentation/#links-tags-collection-get
+            fake_info_str = """[
   {
     "name": "Tutorial",
     "occurences": 47
   }
 ]
 """
-        result.append(to_bytes(fake_info_str))
-    else:
-        # Not supported, dump out information about the request
-        #print(environ)
-        #pprint(environ)
-        print('PATH_INFO %r' % environ['PATH_INFO'])
-        print('CONTENT_TYPE %r' % environ['CONTENT_TYPE'])
-        print('QUERY_STRING %r' % environ['QUERY_STRING'])
-        print('QUERY_STRING dict %r' % get_dict)
-        print('REQUEST_METHOD %r' % environ['REQUEST_METHOD'])
-        #print('environ %r' % environ) # DEBUG, potentially pretty print, but dumping this is non-default
-        #print('environ:') # DEBUG, potentially pretty print, but dumping this is non-default
-        #pprint(environ, indent=4)
-        print('Filtered headers, HTTP*')
-        for key in environ:
-            if key.startswith('HTTP_'):  # TODO potentially startswith 'wsgi' as well
-                # TODO remove leading 'HTTP_'?
-                print('http header ' + key + ' = ' + repr(environ[key]))
+            result.append(to_bytes(fake_info_str))
+        else:
+            # unsupported GET
+            print('Unsupported GET path_info %r' % (path_info,))
+            print('%r with payload %r' % (request_method, get_dict))
+            print(repr(environ['QUERY_STRING']))
+            # TODO dump more info?
 
-        print('POST body %r' % request_body)
-        if environ['CONTENT_TYPE'] == 'application/json' and json and request_body:
-            # 1. Validate the payload - with stacktrace on failure
-            # 2. Pretty Print/display the payload
-            print('POST json body\n-------------\n%s\n-------------\n' % json.dumps(json.loads(request_body), indent=4))
-        #print('environ %r' % environ)
-        if ALWAYS_RETURN_404:
-            # Disable this to send 200 and empty body
-            return not_found(environ, start_response)
-        result.append(to_bytes(''))
+            #raise NotImplemented()
+            if ALWAYS_RETURN_404:
+                # Disable this to send 200 and empty body
+                return not_found(environ, start_response)
+    else:
+        # Assume PUT or POST
+
+        # the environment variable CONTENT_LENGTH may be empty or missing
+        try:
+            request_body_size = int(environ.get('CONTENT_LENGTH', 0))
+        except (ValueError):
+            request_body_size = 0
+        # Read POST body
+        request_body = environ['wsgi.input'].read(request_body_size)
+        link_payload_dict = json.loads(request_body)
+        print('%r with payload %r' % (request_method, link_payload_dict))
+
+        if path_info and path_info.startswith('/api/v1/links/'):
+            #  '/api/v1/links/345'
+            # python -m shaarli_client.main  put-link --title title --url http://something.com 345
+            # update exsting entry, path is the "id"
+            # assume PUT
+            fake_info_str = """{
+  "id": 345,
+  "url": "http://foo.bar",
+  "shorturl": "1H3Srg",
+  "title": "Link title",
+  "description": "Hello, world!",
+  "tags": [
+    "foo",
+    "bar"
+  ],
+  "private": false,
+  "created": "2015-05-05T12:30:00+03:00",
+  "updated": "2015-05-06T14:30:00+03:00"
+}
+"""
+            result.append(to_bytes(fake_info_str))
+        elif path_info and path_info.startswith('/api/v1/links'):
+            # http://shaarli.github.io/api-documentation/#links-links-collection-get
+            # http://shaarli.github.io/api-documentation/#links-links-collection-post
+            # TODO both /sw.js (used by python-shaarli-client) and '/jw' (by shaarlier android share) both request 'text/plain'
+            # TODO '/api/v1/tags' used by shaarlier android share
+            # TODO "GET /api/v1/links?offset=0&limit=1&searchterm=https%3A%2F%2Fwww.immae.eu%2F HTTP/1.1" used by shaarlier android share - looking for dupes
+            # 404 does not elict an error response from shaarlier android share
+            # TODO both post-link put-link ?
+
+            # assume POST
+            # http://shaarli.github.io/api-documentation/#links-links-collection-post
+            # python -m shaarli_client.main  post-link --title title --url http://something.com
+            # get_dict == EMPTY - as expecting json payload
+            # request_body = '{"url":"https:\\/\\/www.immae.eu\\/","title":"Immae","description":"","tags":[""],"private":false}'
+            print('links POST with payload' + repr(link_payload_dict))
+            fake_info_str = """{
+      "id": 345,
+      "url": "http://foo.bar",
+      "shorturl": "1H3Srg",
+      "title": "Link title",
+      "description": "Hello, world!",
+      "tags": [
+        "foo",
+        "bar"
+      ],
+      "private": false,
+      "created": "2015-05-05T12:30:00+03:00",
+      "updated": "2015-05-06T14:30:00+03:00"
+    }
+    """
+            status = '201 OK'
+        else:
+            # Not supported, dump out information about the request
+            #print(environ)
+            #pprint(environ)
+            print('PATH_INFO %r' % environ['PATH_INFO'])
+            print('CONTENT_TYPE %r' % environ['CONTENT_TYPE'])
+            print('QUERY_STRING %r' % environ['QUERY_STRING'])
+            print('QUERY_STRING dict %r' % get_dict)
+            print('REQUEST_METHOD %r' % environ['REQUEST_METHOD'])
+            #print('environ %r' % environ) # DEBUG, potentially pretty print, but dumping this is non-default
+            #print('environ:') # DEBUG, potentially pretty print, but dumping this is non-default
+            #pprint(environ, indent=4)
+            print('Filtered headers, HTTP*')
+            for key in environ:
+                if key.startswith('HTTP_'):  # TODO potentially startswith 'wsgi' as well
+                    # TODO remove leading 'HTTP_'?
+                    print('http header ' + key + ' = ' + repr(environ[key]))
+
+            print('POST body %r' % request_body)
+            if environ['CONTENT_TYPE'] == 'application/json' and json and request_body:
+                # 1. Validate the payload - with stacktrace on failure
+                # 2. Pretty Print/display the payload
+                print('POST json body\n-------------\n%s\n-------------\n' % json.dumps(json.loads(request_body), indent=4))
+            #print('environ %r' % environ)
+            if ALWAYS_RETURN_404:
+                # Disable this to send 200 and empty body
+                return not_found(environ, start_response)
+            result.append(to_bytes(''))
 
     start_response(status, headers)
     return result
