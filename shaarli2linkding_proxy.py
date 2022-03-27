@@ -22,8 +22,8 @@ import requests  # https://github.com/psf/requests
 import fake_shaarli_server  # https://github.com/clach04/fake-shaarli-server
 
 
-linkding_token = os.environ['linkding_token']
-linkding_uri = os.environ['linkding_uri']
+linkding_token = os.environ['LINKDING_TOKEN']
+linkding_uri = os.environ['LINKDING_URI']
 
 
 class LinkDingDispatcher(fake_shaarli_server.DefaultDispatcher):
