@@ -14,6 +14,7 @@ Python 2 or Python 3
   
 """
 
+import json
 import os
 import sys
 
@@ -88,7 +89,7 @@ class LinkDingDispatcher(fake_shaarli_server.DefaultDispatcher):
         print(result)
         # expect 201 on success, NOTE duplicates will not be created, if there is an existing entry it will be overwritten (potentially loosing data)
         print(result.status_code)
-        # TODO ifnot 201 raise an error so fake server can also raise a reasonable error and report to Shaarli client
+        # TODO if not 201 raise an error so fake server can also raise a reasonable error and report to Shaarli client
         result_bookmark = result.json() # {"id":6,"url":"https://example.com","title":"Example title","description":"Example description","website_title":"Example Domain","website_description":null,"tag_names":["tag1","tag2"],"date_added":"2022-03-27T22:44:34.185359Z","date_modified":"2022-03-27T22:44:34.185398Z"}
 
         kwargs["id"] = result_bookmark["id"]
@@ -100,6 +101,93 @@ class LinkDingDispatcher(fake_shaarli_server.DefaultDispatcher):
         """
         return kwargs  # FIXME look up 
 
+    def search_tags(self, *args, **kwargs):
+        """Search for tags
+        http://shaarli.github.io/api-documentation/#links-tags-collection-get
+        Be prepared for; offset, limit, visibility
+        returns a list, empty or sample single entry result:
+
+            [
+              {
+                "name": "Tutorial",
+                "occurences": 47
+              }
+            ]
+        """
+        print('LinkDingDispatcher.search_tags(): ' + repr(kwargs))
+        tag_list = []
+        # https://github.com/sissbruecker/linkding/blob/master/docs/API.md#tags
+        method = 'GET'
+        endpoint = 'api/tags/'
+        endpoint = 'api/tags/?limit=99999'  # FIXME techdebt, defer doing paged gets
+        #endpoint = 'api/tags/?limit=2'  # DEBUG
+        verify_certs = True
+
+        # TODO remove trailing '/' from uri, see 404 note below
+        while self.linkding_uri[-1] == '/':
+            self.linkding_uri = self.linkding_uri[:-1]
+
+        endpoint_uri = '%s/%s' % (self.linkding_uri, endpoint)
+
+        result = requests.request(
+                    method,
+                    endpoint_uri,
+                    headers=self.headers,
+                    verify=verify_certs
+                )
+        print(result)
+        # expect 201 on success, NOTE duplicates will not be created, if there is an existing entry it will be overwritten (potentially loosing data)
+        print(result.status_code)
+        # TODO if not 201 raise an error so fake server can also raise a reasonable error and report to Shaarli client
+        linkding_tags = result.json()
+        """Sample - complete, on GET
+        {
+            "count": 2,
+            "previous": null,
+            "results": [
+                {
+                    "date_added": "2022-03-18T22:24:28.621898Z",
+                    "id": 1,
+                    "name": "page1"
+                },
+                {
+                    "date_added": "2022-03-18T22:24:41.929638Z",
+                    "id": 2,
+                    "name": "page2"
+                }
+            ],
+            "next": null
+        }
+
+        Sample, paged
+        {
+            "count": 5,
+            "previous": null,
+            "results": [
+                {
+                    "date_added": "2022-03-18T22:24:28.597123Z",
+                    "id": 1,
+                    "name": "game"
+                },
+                {
+                    "date_added": "2022-03-18T22:24:28.621898Z",
+                    "id": 2,
+                    "name": "page1"
+                }
+            ],
+            "next": "http://192.168.11.85:8000/api/tags/?limit=2&offset=2"
+        }
+        """
+        print(linkding_tags)
+        print(json.dumps(linkding_tags, indent=4))
+        #endpoint = results.get("next")
+        for tab in linkding_tags["results"]:
+            tag_list.append({
+                "name": tab["name"],
+                "occurences": 1  # TODO, anyway to get a count?
+              })
+        # TODO mixed case tags? Shaarli are consider case insensitive, unclear about LinkDing model
+        return tag_list
 
 
 def main(argv=None):
