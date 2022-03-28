@@ -25,6 +25,10 @@ import fake_shaarli_server  # https://github.com/clach04/fake-shaarli-server
 
 class LinkDingDispatcher(fake_shaarli_server.DefaultDispatcher):
     def __init__(self, linkding_uri, linkding_token):
+        # remove trailing '/' from uri, see 404 note below
+        while linkding_uri[-1] == '/':
+            linkding_uri = linkding_uri[:-1]
+
         self.linkding_uri = linkding_uri
         self.linkding_token = linkding_token
 
@@ -62,10 +66,6 @@ class LinkDingDispatcher(fake_shaarli_server.DefaultDispatcher):
         method = 'POST'
         endpoint = 'api/bookmarks/'  # will get 404 from LinkDing if have //api/bookmarks/ versus /api/bookmarks/
         verify_certs = True
-
-        # TODO remove trailing '/' from uri, see 404 note below
-        while self.linkding_uri[-1] == '/':
-            self.linkding_uri = self.linkding_uri[:-1]
 
         endpoint_uri = '%s/%s' % (self.linkding_uri, endpoint)
 
@@ -122,10 +122,6 @@ class LinkDingDispatcher(fake_shaarli_server.DefaultDispatcher):
         endpoint = 'api/tags/?limit=1000'  # get a bunch at a time, need to get them all as Shaarli clients expect all tags returned on a wildcard lookup
         #endpoint = 'api/tags/?limit=2'  # DEBUG paged interation
         verify_certs = True
-
-        # TODO remove trailing '/' from uri, see 404 note below
-        while self.linkding_uri[-1] == '/':
-            self.linkding_uri = self.linkding_uri[:-1]
 
         endpoint_uri = '%s/%s' % (self.linkding_uri, endpoint)
 
