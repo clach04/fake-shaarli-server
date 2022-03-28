@@ -22,11 +22,14 @@ import requests  # https://github.com/psf/requests
 import fake_shaarli_server  # https://github.com/clach04/fake-shaarli-server
 
 
-linkding_token = os.environ['LINKDING_TOKEN']
-linkding_uri = os.environ['LINKDING_URI']
-
-
 class LinkDingDispatcher(fake_shaarli_server.DefaultDispatcher):
+    def __init__(self, linkding_uri, linkding_token):
+        self.linkding_uri = linkding_uri
+        self.linkding_token = linkding_token
+
+        # https://github.com/sissbruecker/linkding/blob/master/docs/API.md#authentication
+        self.headers = {'Authorization': 'Token %s' % linkding_token}
+
     def add_link(self, *args, **kwargs):
         """Add a single URL bookmark
         http://shaarli.github.io/api-documentation/#links-links-collection-post
@@ -60,13 +63,10 @@ class LinkDingDispatcher(fake_shaarli_server.DefaultDispatcher):
         verify_certs = True
 
         # TODO remove trailing '/' from uri, see 404 note below
-        global linkding_uri  # fixme, make this a param into __init__ and store in self
-        while linkding_uri[-1] == '/':
-            linkding_uri = linkding_uri[:-1]
+        while self.linkding_uri[-1] == '/':
+            self.linkding_uri = self.linkding_uri[:-1]
 
-        # https://github.com/sissbruecker/linkding/blob/master/docs/API.md#authentication
-        headers = {'Authorization': 'Token %s' % linkding_token}
-        endpoint_uri = '%s/%s' % (linkding_uri, endpoint)
+        endpoint_uri = '%s/%s' % (self.linkding_uri, endpoint)
 
         # https://github.com/sissbruecker/linkding/blob/master/docs/API.md#bookmarks
         bookmark_dict = {
@@ -80,7 +80,7 @@ class LinkDingDispatcher(fake_shaarli_server.DefaultDispatcher):
         result = requests.request(
                     method,
                     endpoint_uri,
-                    headers=headers,
+                    headers=self.headers,
                     json=bookmark_dict,
                     verify=verify_certs
                 )
@@ -100,10 +100,12 @@ class LinkDingDispatcher(fake_shaarli_server.DefaultDispatcher):
         """
         return kwargs  # FIXME look up 
 
-fake_shaarli_server.dispatcher = LinkDingDispatcher()
 
 
 def main(argv=None):
+    linkding_uri = os.environ['LINKDING_URI']
+    linkding_token = os.environ['LINKDING_TOKEN']
+    fake_shaarli_server.dispatcher = LinkDingDispatcher(linkding_uri, linkding_token)
     fake_shaarli_server.main(argv)
 
 
