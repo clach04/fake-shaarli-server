@@ -183,7 +183,7 @@ class LinkDingDispatcher(fake_shaarli_server.DefaultDispatcher):
                     "name": tab["name"],
                     "occurences": 1  # TODO, anyway to get a count?
                   })
-        # TODO mixed case tags? Shaarli are consider case insensitive, unclear about LinkDing model
+        # Both Shaarli and LinkgDing consider tags as case insensitive
         return tag_list
 
 
