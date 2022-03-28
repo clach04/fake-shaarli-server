@@ -12,6 +12,9 @@ This doesn't actual do anything and is essentially non-functional. It completely
 
 ### shaarli2linkding_proxy.py
 
+Map from [Shaarli REST API v1](http://shaarli.github.io/api-documentation) into
+[LinkDing REST API](https://github.com/sissbruecker/linkding/blob/master/docs/API.md)
+
 Right now this only supports creating new entries (or overwritting existing, but not looking up current tags)
 
     export LINKDING_TOKEN=secret  # REST API key/token from http://LinkDingServer/settings/integrations
