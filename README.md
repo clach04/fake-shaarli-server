@@ -15,7 +15,7 @@ This doesn't actual do anything and is essentially non-functional. It completely
 Map from [Shaarli REST API v1](http://shaarli.github.io/api-documentation) into
 [LinkDing REST API](https://github.com/sissbruecker/linkding/blob/master/docs/API.md)
 
-Right now this only supports creating new entries (or overwritting existing, but not looking up current tags)
+Right now this only supports tag lookup and creating new entries (or overwritting existing) - which is enough for  [Shaarlier Android app](https://github.com/dimtion/Shaarlier/) to work properly (with the exception of lookup of existing bookmarks).
 
     export LINKDING_TOKEN=secret  # REST API key/token from http://LinkDingServer/settings/integrations
     export LINKDING_URI=http://LinkDingServer  # etc.
